@@ -1,8 +1,7 @@
 #include "automato.h"
 
-// ============================================================
 //  Mapas estáticos de nomes (para log/debug)
-// ============================================================
+
 const std::map<Estado, std::string>& Automato::mapaEstados() {
     static const std::map<Estado, std::string> m = {
         {Estado::PARADO,        "PARADO"},
@@ -49,17 +48,13 @@ const std::map<Entrada, std::string>& Automato::mapaEntradas() {
     return m;
 }
 
-// ============================================================
 //  Construtor
-// ============================================================
 Automato::Automato() : estadoAtual(Estado::PARADO) {
     inicializarTransicoes();
     std::cout << "[AFD] Automato iniciado. Estado: PARADO\n";
 }
 
-// ============================================================
 //  Tabela de transições (delta)
-// ============================================================
 void Automato::inicializarTransicoes() {
 
     // ── PARADO ──────────────────────────────────────────────
@@ -163,4 +158,62 @@ void Automato::inicializarTransicoes() {
     // ── MACHUCADO ───────────────────────────────────────────
     delta[Estado::MACHUCADO][Entrada::ANIMACAO_CONCLUIDA] = Estado::PARADO;
     delta[Estado::MACHUCADO][Entrada::TOMAR_HIT_FATAL]    = Estado::DERROTADO;
+}
+
+void Automato::processar(Entrada entrada) {
+    // Busca o estado atual na tabela delta
+    auto itEstado = delta.find(estadoAtual);
+    if (itEstado == delta.end()) {
+        std::cout << "[AFD] Estado sem transições: " << getNomeEstado() << "\n";
+        return;
+    }
+
+    // Busca a entrada dentro das transições do estado atual
+    auto itEntrada = itEstado->second.find(entrada);
+    if (itEntrada == itEstado->second.end()) {
+        // Entrada não mapeada neste estado → ignora silenciosamente
+        return;
+    }
+
+    Estado novoEstado = itEntrada->second;
+    executarAcao(estadoAtual, novoEstado, entrada);
+    estadoAtual = novoEstado;
+}
+
+// getters
+
+Estado Automato::getEstado() const {
+    return estadoAtual;
+}
+
+std::string Automato::getNomeEstado() const {
+    const auto& m = mapaEstados();
+    auto it = m.find(estadoAtual);
+    return (it != m.end()) ? it->second : "DESCONHECIDO";
+}
+
+bool Automato::isDerrotado() const { return estadoAtual == Estado::DERROTADO; }
+bool Automato::isVencedor()  const { return estadoAtual == Estado::VITORIA;   }
+
+std::string Automato::getNomeEntrada(Entrada e) {
+    const auto& m = mapaEntradas();
+    auto it = m.find(e);
+    return (it != m.end()) ? it->second : "DESCONHECIDA";
+}
+
+// resetar
+
+void Automato::resetar() {
+    estadoAtual = Estado::PARADO;
+    std::cout << "[AFD] Automato resetado para PARADO.\n";
+}
+
+// executarAcao (hook interno)
+// Pode ser expandido futuramente para efeitos sonoros, partículas, etc.
+
+void Automato::executarAcao(Estado de, Estado para, Entrada entrada) {
+    const auto& me = mapaEstados();
+    std::cout << "[AFD] " << me.at(de)
+              << " --[" << getNomeEntrada(entrada) << "]--> "
+              << me.at(para) << "\n";
 }

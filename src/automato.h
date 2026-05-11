@@ -3,10 +3,8 @@
 #include <map>
 #include <iostream>
 
-// ============================================================
 //  AFD — Automato
 //  Estados e transições do autômato
-// ============================================================
 
 enum class Estado {
     // Neutros
@@ -68,9 +66,7 @@ enum class Entrada {
     VENCER
 };
 
-// ============================================================
 //  Classe do AFD
-// ============================================================
 class Automato {
 public:
     Automato();
