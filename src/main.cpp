@@ -33,13 +33,13 @@
 #include "GerenciadorSprites.h"
 
 // Configurações da janela
-static constexpr unsigned LARGURA_JANELA  = 800;
-static constexpr unsigned ALTURA_JANELA   = 400;
-static constexpr unsigned ESCALA_SPRITE   = 3;    // zoom do personagem
-static constexpr float    DURACAO_PULO    = 1.0f; // s no ar antes de aterrissar
+static constexpr unsigned LARGURA_JANELA = 800;
+static constexpr unsigned ALTURA_JANELA = 400;
+static constexpr unsigned ESCALA_SPRITE = 3; // zoom do personagem
+static constexpr float    DURACAO_PULO = 1.0f; // s no ar antes de aterrissar
 
 // Caminho do spritesheet (ajuste se necessário)
-static const std::string SPRITESHEET_PATH = "assets/sprites/SpriteSheet.jpeg";
+static const std::string SPRITESHEET_PATH = "assets/sprites/SpriteSheet.png";
 
 int main() {
 
