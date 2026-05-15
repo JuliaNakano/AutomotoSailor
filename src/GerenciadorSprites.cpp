@@ -235,7 +235,7 @@ void GerenciadorSprites::inicializarAnimacoes() {
 
     // ── VITORIA (Win) ── Linha 5, 2 quadros, loop ────────────
     {
-        auto& a = criarAnimacao(Estado::VITORIA, true);
+        auto& a = criarAnimacao(Estado::VITORIA, false);
         a.adicionarQuadro(529, 677, 44, 95, 0.25f);  // f1
         a.adicionarQuadro(595, 674, 61, 96, 0.25f);  // f2
     }

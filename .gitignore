@@ -2,6 +2,7 @@ obj/
 bin/
 *.exe
 *.o
+*.bin
 .DS_Store
 Thumbs.db
 .vscode

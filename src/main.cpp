@@ -31,19 +31,22 @@
 #include <string>
 #include "automato.h"
 #include "GerenciadorSprites.h"
+#include "GerenciadorAudio.h"       // <-- novo
 
-// Configurações da janela
+// ── Configurações da janela ──────────────────────────────────
 static constexpr unsigned LARGURA_JANELA = 800;
-static constexpr unsigned ALTURA_JANELA = 400;
-static constexpr unsigned ESCALA_SPRITE = 3; // zoom do personagem
-static constexpr float    DURACAO_PULO = 1.0f; // s no ar antes de aterrissar
+static constexpr unsigned ALTURA_JANELA  = 400;
+static constexpr unsigned ESCALA_SPRITE  = 5;    // zoom do personagem
+static constexpr float    DURACAO_PULO   = 1.0f; // s no ar antes de aterrissar
 
-// Caminho do spritesheet (ajuste se necessário)
+// ── Caminhos de assets (ajuste conforme sua pasta) ───────────
 static const std::string SPRITESHEET_PATH = "assets/sprites/SpriteSheet.png";
+static const std::string BACKGROUND_PATH  = "assets/backgrounds/Background.jpeg";
+static const std::string MUSICA_PATH      = "assets/audio/musica.ogg";
 
 int main() {
 
-    // Crindo Janela
+    // ── Janela ───────────────────────────────────────────────
     sf::RenderWindow janela(
         sf::VideoMode(LARGURA_JANELA, ALTURA_JANELA),
         "Sailor Moon – Automato Finito (SFML)",
@@ -51,10 +54,10 @@ int main() {
     );
     janela.setFramerateLimit(60);
 
-    // Automato
+    // ── Autômato ─────────────────────────────────────────────
     Automato automato;
 
-    // Sprites
+    // ── Spritesheet do personagem ────────────────────────────
     GerenciadorSprites gerSprites;
     if (!gerSprites.carregar(SPRITESHEET_PATH)) {
         std::cerr << "Nao foi possivel abrir " << SPRITESHEET_PATH << "\n"
@@ -66,17 +69,52 @@ int main() {
     sprite.setTexture(gerSprites.getTextura());
     sprite.setScale(ESCALA_SPRITE, ESCALA_SPRITE);
 
-    // Posição central inferior da janela
+    // Posição central-inferior da janela
     sprite.setPosition(
         LARGURA_JANELA / 2.f - 30.f * ESCALA_SPRITE,
-        ALTURA_JANELA  - 85.f * ESCALA_SPRITE - 10.f
+        ALTURA_JANELA  - 40.f * ESCALA_SPRITE - 10.f
     );
 
-    // Fundo colorido
-    sf::RectangleShape fundo(sf::Vector2f(LARGURA_JANELA, ALTURA_JANELA));
-    fundo.setFillColor(sf::Color(20, 20, 60));  // azul noturno
+    // ── Background ───────────────────────────────────────────
+    //  Tentamos carregar uma imagem de fundo.
+    //  Se o arquivo não existir, usamos o retângulo sólido como fallback,
+    //  sem interromper a execução.
+    sf::Texture texturaFundo;
+    sf::Sprite  spriteFundo;
+    bool        fundoComImagem = false;
 
-    // HUD (texto de estado)
+    if (texturaFundo.loadFromFile(BACKGROUND_PATH)) {
+        texturaFundo.setSmooth(true);
+
+        // Escala para cobrir toda a janela, independente do tamanho original
+        sf::Vector2u szTex = texturaFundo.getSize();
+        float escX = static_cast<float>(LARGURA_JANELA) / szTex.x;
+        float escY = static_cast<float>(ALTURA_JANELA)  / szTex.y;
+
+        spriteFundo.setTexture(texturaFundo);
+        spriteFundo.setScale(escX, escY);
+
+        fundoComImagem = true;
+        std::cout << "[Fundo] Imagem carregada: " << BACKGROUND_PATH << "\n";
+    } else {
+        std::cout << "[Fundo] Imagem nao encontrada (" << BACKGROUND_PATH
+                  << "); usando cor solida de fallback.\n";
+    }
+
+    // Fallback: retângulo azul noturno (idêntico ao original)
+    sf::RectangleShape fundoFallback(sf::Vector2f(LARGURA_JANELA, ALTURA_JANELA));
+    fundoFallback.setFillColor(sf::Color(20, 20, 60));
+
+    // ── Música de fundo ──────────────────────────────────────
+    //  GerenciadorAudio cuida do streaming e do loop automaticamente.
+    //  A falha no carregamento é não-fatal: o jogo roda sem som.
+    GerenciadorAudio gerAudio;
+    if (gerAudio.carregar(MUSICA_PATH)) {
+        gerAudio.setVolume(55.f);   // 0–100; ajuste ao gosto
+        gerAudio.tocar();
+    }
+
+    // ── HUD (texto de estado) ────────────────────────────────
     sf::Font fonte;
     bool fonteOk = fonte.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf");
     if (!fonteOk)
@@ -104,16 +142,15 @@ int main() {
         );
     }
 
-    // Timer de pulo (auto-aterrissar)
-    float timerPulo     = 0.f;
-    bool  estaNoPulo    = false;
+    // ── Timer de pulo (auto-aterrissar) ──────────────────────
+    float timerPulo  = 0.f;
+    bool  estaNoPulo = false;
 
     Estado estadoAnterior = automato.getEstado();
 
-    // Clock para delta-time
     sf::Clock relogio;
 
-    // Lambda: enviar entrada ao autômato 
+    // Lambda: envia entrada ao autômato e sincroniza o gerenciador de sprites
     auto enviar = [&](Entrada e) {
         automato.processar(e);
         Estado novo = automato.getEstado();
@@ -123,12 +160,11 @@ int main() {
         }
     };
 
-    // Loop principal
+    // ── Loop principal ───────────────────────────────────────
     while (janela.isOpen()) {
 
         float dt = relogio.restart().asSeconds();
-        // Limita dt para evitar saltos ao perder foco
-        if (dt > 0.1f) dt = 0.1f;
+        if (dt > 0.1f) dt = 0.1f;   // limita dt em caso de perda de foco
 
         // Eventos
         sf::Event ev;
@@ -139,81 +175,48 @@ int main() {
 
             if (ev.type == sf::Event::KeyPressed) {
                 Estado est = automato.getEstado();
-                bool emAr  = (est == Estado::PULANDO   ||
+                bool emAr  = (est == Estado::PULANDO    ||
                               est == Estado::PULO_FRENTE ||
-                              est == Estado::CHUTE_AEREO  ||
+                              est == Estado::CHUTE_AEREO ||
                               est == Estado::SOCO_DESCIDA);
 
                 switch (ev.key.code) {
 
-                    // Movimentação
-                    case sf::Keyboard::D:
-                        enviar(Entrada::ANDAR); break;
-
-                    case sf::Keyboard::S:
-                        enviar(Entrada::PARAR); break;
+                    case sf::Keyboard::D: enviar(Entrada::ANDAR); break;
+                    case sf::Keyboard::S: enviar(Entrada::PARAR); break;
 
                     case sf::Keyboard::W:
                         enviar(Entrada::PULAR);
-                        estaNoPulo = true;
-                        timerPulo  = 0.f;
+                        estaNoPulo = true; timerPulo = 0.f;
                         break;
 
                     case sf::Keyboard::E:
                         enviar(Entrada::PULAR_FRENTE);
-                        estaNoPulo = true;
-                        timerPulo  = 0.f;
+                        estaNoPulo = true; timerPulo = 0.f;
                         break;
 
-                    // Ataques básicos
                     case sf::Keyboard::J:
                         if (emAr) enviar(Entrada::CHUTE_NO_AR);
                         else      enviar(Entrada::SOCO);
                         break;
 
-                    case sf::Keyboard::K:
-                        enviar(Entrada::SOCO_NOVAMENTE); break;
+                    case sf::Keyboard::K:  enviar(Entrada::SOCO_NOVAMENTE);  break;
+                    case sf::Keyboard::U:  enviar(Entrada::CHUTE_NO_AR);     break;
+                    case sf::Keyboard::I:  enviar(Entrada::SOCO_NO_AR_BAIXO);break;
+                    case sf::Keyboard::Space: enviar(Entrada::ESPECIAL);     break;
+                    case sf::Keyboard::G:  enviar(Entrada::SEGURAR_INIMIGO); break;
+                    case sf::Keyboard::T:  enviar(Entrada::TAPA);            break;
+                    case sf::Keyboard::R:  enviar(Entrada::ARREMESSAR);      break;
+                    case sf::Keyboard::H:  enviar(Entrada::TOMAR_HIT);       break;
+                    case sf::Keyboard::F:  enviar(Entrada::TOMAR_HIT_FORTE); break;
+                    case sf::Keyboard::Z:  enviar(Entrada::TOMAR_HIT_FATAL); break;
+                    case sf::Keyboard::V:  enviar(Entrada::VENCER);          break;
 
-                    case sf::Keyboard::U:
-                        enviar(Entrada::CHUTE_NO_AR); break;
-
-                    case sf::Keyboard::I:
-                        enviar(Entrada::SOCO_NO_AR_BAIXO); break;
-
-                    // Especial
-                    case sf::Keyboard::Space:
-                        enviar(Entrada::ESPECIAL); break;
-
-                    // Segurar / Arremesso
-                    case sf::Keyboard::G:
-                        enviar(Entrada::SEGURAR_INIMIGO); break;
-
-                    case sf::Keyboard::T:
-                        enviar(Entrada::TAPA); break;
-
-                    case sf::Keyboard::R:
-                        enviar(Entrada::ARREMESSAR); break;
-
-                    // Dano (demo)
-                    case sf::Keyboard::H:
-                        enviar(Entrada::TOMAR_HIT); break;
-
-                    case sf::Keyboard::F:
-                        enviar(Entrada::TOMAR_HIT_FORTE); break;
-
-                    case sf::Keyboard::Z:
-                        enviar(Entrada::TOMAR_HIT_FATAL); break;
-
-                    // Vitória (demo)
-                    case sf::Keyboard::V:
-                        enviar(Entrada::VENCER); break;
-
-                    // Reset
                     case sf::Keyboard::BackSpace:
                         automato.resetar();
                         gerSprites.trocarEstado(Estado::PARADO);
                         estadoAnterior = Estado::PARADO;
-                        estaNoPulo = false;
+                        estaNoPulo     = false;
                         break;
 
                     default: break;
@@ -225,7 +228,7 @@ int main() {
         Estado estAtual = automato.getEstado();
         bool emAr = (estAtual == Estado::PULANDO    ||
                      estAtual == Estado::PULO_FRENTE ||
-                     estAtual == Estado::CHUTE_AEREO  ||
+                     estAtual == Estado::CHUTE_AEREO ||
                      estAtual == Estado::SOCO_DESCIDA);
 
         if (emAr) {
@@ -239,24 +242,31 @@ int main() {
 
         // Atualizar animação; detectar ANIMACAO_CONCLUIDA
         bool animConcluida = gerSprites.atualizar(automato.getEstado(), dt, sprite);
-        if (animConcluida) {
+        if (animConcluida)
             enviar(Entrada::ANIMACAO_CONCLUIDA);
-        }
 
-        // HUD: texto do estado atual
+        // HUD
         if (fonteOk)
             textoEstado.setString("Estado: " + automato.getNomeEstado());
 
-        // Render
+        // ── Render (ordem: fundo → personagem → HUD) ─────────
         janela.clear();
-        janela.draw(fundo);
-        janela.draw(sprite);
+
+        if (fundoComImagem)
+            janela.draw(spriteFundo);       // imagem de fundo
+        else
+            janela.draw(fundoFallback);     // cor sólida de fallback
+
+        janela.draw(sprite);                // personagem
+
         if (fonteOk) {
             janela.draw(textoEstado);
             janela.draw(textoControles);
         }
+
         janela.display();
     }
 
+    // sf::Music para automaticamente no destrutor de GerenciadorAudio
     return 0;
 }

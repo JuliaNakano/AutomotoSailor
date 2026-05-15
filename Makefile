@@ -3,7 +3,7 @@ CXX      := g++
 
 CXXFLAGS := -O3 -Wall -Ilib/imgui -Ilib/imgui-sfml
 
-LDFLAGS  := -lsfml-graphics -lsfml-window -lsfml-system -lGL
+LDFLAGS  := -lsfml-graphics -lsfml-window -lsfml-system -lGL -lsfml-audio
 
 #Dir structure
 SRC_DIR  := src
