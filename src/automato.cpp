@@ -62,10 +62,7 @@ void Automato::inicializarTransicoes() {
     delta[Estado::PARADO][Entrada::PULAR]           = Estado::PULANDO;
     delta[Estado::PARADO][Entrada::PULAR_FRENTE]    = Estado::PULO_FRENTE;
     delta[Estado::PARADO][Entrada::SOCO]            = Estado::SOCO;
-    delta[Estado::PARADO][Entrada::ESPECIAL]        = Estado::ESPECIAL;
     delta[Estado::PARADO][Entrada::SEGURAR_INIMIGO] = Estado::SEGURAR;
-    delta[Estado::PARADO][Entrada::TOMAR_HIT]       = Estado::TOMANDO_HIT;
-    delta[Estado::PARADO][Entrada::TOMAR_HIT_FORTE] = Estado::MACHUCADO;
     delta[Estado::PARADO][Entrada::TOMAR_HIT_FATAL] = Estado::DERROTADO;
     delta[Estado::PARADO][Entrada::VENCER]          = Estado::VITORIA;
 
@@ -74,33 +71,26 @@ void Automato::inicializarTransicoes() {
     delta[Estado::ANDANDO][Entrada::PULAR]           = Estado::PULANDO;
     delta[Estado::ANDANDO][Entrada::PULAR_FRENTE]    = Estado::PULO_FRENTE;
     delta[Estado::ANDANDO][Entrada::SOCO]            = Estado::SOCO;
-    delta[Estado::ANDANDO][Entrada::ESPECIAL]        = Estado::ESPECIAL;
     delta[Estado::ANDANDO][Entrada::SEGURAR_INIMIGO] = Estado::SEGURAR;
-    delta[Estado::ANDANDO][Entrada::TOMAR_HIT]       = Estado::TOMANDO_HIT;
-    delta[Estado::ANDANDO][Entrada::TOMAR_HIT_FORTE] = Estado::MACHUCADO;
     delta[Estado::ANDANDO][Entrada::TOMAR_HIT_FATAL] = Estado::DERROTADO;
     delta[Estado::ANDANDO][Entrada::VENCER]          = Estado::VITORIA;
 
     // ── SOCO ────────────────────────────────────────────────
     delta[Estado::SOCO][Entrada::SOCO_NOVAMENTE]     = Estado::COMBO;
     delta[Estado::SOCO][Entrada::ANIMACAO_CONCLUIDA] = Estado::PARADO;
-    delta[Estado::SOCO][Entrada::TOMAR_HIT]          = Estado::TOMANDO_HIT;
-    delta[Estado::SOCO][Entrada::TOMAR_HIT_FORTE]    = Estado::MACHUCADO;
     delta[Estado::SOCO][Entrada::TOMAR_HIT_FATAL]    = Estado::DERROTADO;
     delta[Estado::SOCO][Entrada::VENCER]             = Estado::VITORIA;
 
     // ── COMBO ───────────────────────────────────────────────
     delta[Estado::COMBO][Entrada::ANIMACAO_CONCLUIDA] = Estado::PARADO;
-    delta[Estado::COMBO][Entrada::TOMAR_HIT]          = Estado::TOMANDO_HIT;
-    delta[Estado::COMBO][Entrada::TOMAR_HIT_FORTE]    = Estado::MACHUCADO;
     delta[Estado::COMBO][Entrada::TOMAR_HIT_FATAL]    = Estado::DERROTADO;
     delta[Estado::COMBO][Entrada::VENCER]             = Estado::VITORIA;
+    delta[Estado::COMBO][Entrada::ESPECIAL]           = Estado::ESPECIAL;
 
     // ── SEGURAR ─────────────────────────────────────────────
     delta[Estado::SEGURAR][Entrada::TAPA]               = Estado::TAPA_SEGURADO;
     delta[Estado::SEGURAR][Entrada::ARREMESSAR]         = Estado::ARREMESSO;
     delta[Estado::SEGURAR][Entrada::ANIMACAO_CONCLUIDA] = Estado::PARADO;
-    delta[Estado::SEGURAR][Entrada::TOMAR_HIT_FORTE]    = Estado::MACHUCADO;
     delta[Estado::SEGURAR][Entrada::TOMAR_HIT_FATAL]    = Estado::DERROTADO;
 
     // ── TAPA SEGURADO ──────────────────────────────────────
@@ -116,26 +106,18 @@ void Automato::inicializarTransicoes() {
     // ── PULANDO ─────────────────────────────────────────────
     delta[Estado::PULANDO][Entrada::CHUTE_NO_AR]      = Estado::CHUTE_AEREO;
     delta[Estado::PULANDO][Entrada::SOCO_NO_AR_BAIXO] = Estado::SOCO_DESCIDA;
-    delta[Estado::PULANDO][Entrada::ESPECIAL]         = Estado::ESPECIAL;
     delta[Estado::PULANDO][Entrada::ATERRISSAR]       = Estado::PARADO;
-    delta[Estado::PULANDO][Entrada::TOMAR_HIT]        = Estado::TOMANDO_HIT;
-    delta[Estado::PULANDO][Entrada::TOMAR_HIT_FORTE]  = Estado::MACHUCADO;
     delta[Estado::PULANDO][Entrada::TOMAR_HIT_FATAL]  = Estado::DERROTADO;
 
     // ── PULO FRENTE ─────────────────────────────────────────
     delta[Estado::PULO_FRENTE][Entrada::CHUTE_NO_AR]      = Estado::CHUTE_AEREO;
     delta[Estado::PULO_FRENTE][Entrada::SOCO_NO_AR_BAIXO] = Estado::SOCO_DESCIDA;
-    delta[Estado::PULO_FRENTE][Entrada::ESPECIAL]         = Estado::ESPECIAL;
     delta[Estado::PULO_FRENTE][Entrada::ATERRISSAR]       = Estado::ANDANDO;
-    delta[Estado::PULO_FRENTE][Entrada::TOMAR_HIT]        = Estado::TOMANDO_HIT;
-    delta[Estado::PULO_FRENTE][Entrada::TOMAR_HIT_FORTE]  = Estado::MACHUCADO;
     delta[Estado::PULO_FRENTE][Entrada::TOMAR_HIT_FATAL]  = Estado::DERROTADO;
 
     // ── CHUTE AÉREO ─────────────────────────────────────────
     delta[Estado::CHUTE_AEREO][Entrada::ATERRISSAR]         = Estado::PARADO;
     delta[Estado::CHUTE_AEREO][Entrada::ANIMACAO_CONCLUIDA] = Estado::PULANDO;
-    delta[Estado::CHUTE_AEREO][Entrada::TOMAR_HIT]          = Estado::TOMANDO_HIT;
-    delta[Estado::CHUTE_AEREO][Entrada::TOMAR_HIT_FORTE]    = Estado::MACHUCADO;
     delta[Estado::CHUTE_AEREO][Entrada::TOMAR_HIT_FATAL]    = Estado::DERROTADO;
 
     // ── SOCO DESCIDA ────────────────────────────────────────
@@ -148,12 +130,6 @@ void Automato::inicializarTransicoes() {
     delta[Estado::ESPECIAL][Entrada::ATERRISSAR]         = Estado::PARADO;
     delta[Estado::ESPECIAL][Entrada::TOMAR_HIT_FATAL]    = Estado::DERROTADO;
     delta[Estado::ESPECIAL][Entrada::VENCER]             = Estado::VITORIA;
-
-    // ── TOMANDO HIT ─────────────────────────────────────────
-    delta[Estado::TOMANDO_HIT][Entrada::ANIMACAO_CONCLUIDA] = Estado::PARADO;
-    delta[Estado::TOMANDO_HIT][Entrada::TOMAR_HIT]          = Estado::TOMANDO_HIT;
-    delta[Estado::TOMANDO_HIT][Entrada::TOMAR_HIT_FORTE]    = Estado::MACHUCADO;
-    delta[Estado::TOMANDO_HIT][Entrada::TOMAR_HIT_FATAL]    = Estado::DERROTADO;
 
     // ── MACHUCADO ───────────────────────────────────────────
     delta[Estado::MACHUCADO][Entrada::ANIMACAO_CONCLUIDA] = Estado::PARADO;
@@ -171,7 +147,6 @@ void Automato::processar(Entrada entrada) {
     // Busca a entrada dentro das transições do estado atual
     auto itEntrada = itEstado->second.find(entrada);
     if (itEntrada == itEstado->second.end()) {
-        // Entrada não mapeada neste estado → ignora silenciosamente
         return;
     }
 
@@ -208,8 +183,6 @@ void Automato::resetar() {
     std::cout << "[AFD] Automato resetado para PARADO.\n";
 }
 
-// executarAcao (hook interno)
-// Pode ser expandido futuramente para efeitos sonoros, partículas, etc.
 
 void Automato::executarAcao(Estado de, Estado para, Entrada entrada) {
     const auto& me = mapaEstados();

@@ -83,5 +83,10 @@ clean:
 	@echo "Cleaning..."
 	rm -rf $(OBJ_DIR) $(BIN_DIR) *.ini
 	@echo "Cleaned!"
+	
+# Install libs
+install:
+	@sudo apt update
+	@sudo apt install libsfml-dev
 
 .PHONY: all run clean

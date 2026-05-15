@@ -1,33 +1,6 @@
 #include "GerenciadorSprites.h"
 #include <iostream>
 
-// ============================================================
-//  MAPA DE COORDENADAS DO SPRITESHEET  (535 × 1600 px)
-//
-//  Todas as posições foram detectadas automaticamente por
-//  análise de pixels do fundo ciano (R≈127, G≈255, B≈254).
-//
-//  Se algum frame ficar desalinhado, ajuste os valores de
-//  x, y, w, h abaixo diretamente neste arquivo.
-//
-//  Formato de cada quadro:  adicionarQuadro(x, y, w, h, duracao_s)
-// ============================================================
-
-// ── FAIXAS PRINCIPAIS (y, altura) ───────────────────────────
-// Linha 1 – Stay / Punch / Go           y=10,  h=83
-// Linha 2 – Kombo after punch           y=131, h=84
-// Linha 3 – Jump kick / Punch down /    y=244, h=86
-//           Spezial (pequeno)
-// Linha 4 – Hold / Slap / Throw         y=387, h=72
-// Linha 5 – Get hit / Hurt / Def / Win  y=531, h=78
-// Special grandes (4 sub-linhas)
-//   spec1                               y=660, h=92
-//   spec2                               y=771, h=66
-//   spec3                               y=869, h=82
-//   spec4                               y=967, h=93
-// Jump / Jump Forward                   y=1131, h=85
-// ============================================================
-
 GerenciadorSprites::GerenciadorSprites()
     : estadoAnterior(Estado::PARADO) {}
 
@@ -167,48 +140,10 @@ void GerenciadorSprites::inicializarAnimacoes() {
         auto& a = criarAnimacao(Estado::ESPECIAL, false);
 
         // spec1  y=660, h=92
-        a.adicionarQuadro( 53, 660,  50, 92, 0.09f);
-        a.adicionarQuadro(103, 660,  61, 92, 0.09f);
-        a.adicionarQuadro(164, 660,  53, 92, 0.09f);
-        a.adicionarQuadro(217, 660,  61, 92, 0.09f);
-        a.adicionarQuadro(278, 660,  61, 92, 0.09f);
-        a.adicionarQuadro(339, 660,  31, 92, 0.08f);
-        a.adicionarQuadro(370, 660,  34, 92, 0.08f);
-        a.adicionarQuadro(404, 660,  30, 92, 0.08f);
-        a.adicionarQuadro(434, 660,  40, 92, 0.08f);
-
-        // spec2  y=771, h=66
-        a.adicionarQuadro(  0, 771,  29, 66, 0.08f);
-        a.adicionarQuadro( 29, 771,  30, 66, 0.08f);
-        a.adicionarQuadro( 59, 771,  34, 66, 0.08f);
-        a.adicionarQuadro( 93, 771,  30, 66, 0.08f);
-        a.adicionarQuadro(123, 771,  38, 66, 0.08f);
-        a.adicionarQuadro(161, 771,  29, 66, 0.08f);
-        a.adicionarQuadro(190, 771,  37, 66, 0.08f);
-        a.adicionarQuadro(227, 771,  31, 66, 0.08f);
-        a.adicionarQuadro(258, 771,  34, 66, 0.08f);
-
-        // spec3  y=869, h=82
-        a.adicionarQuadro( 19, 869,  59, 82, 0.09f);
-        a.adicionarQuadro( 78, 869,  58, 82, 0.09f);
-        a.adicionarQuadro(136, 869,  57, 82, 0.09f);
-        a.adicionarQuadro(193, 869,  54, 82, 0.09f);
-        a.adicionarQuadro(247, 869,  55, 82, 0.09f);
-        a.adicionarQuadro(302, 869,  53, 82, 0.09f);
-        a.adicionarQuadro(355, 869,  52, 82, 0.09f);
-        a.adicionarQuadro(407, 869,  54, 82, 0.09f);
-        a.adicionarQuadro(461, 869,  74, 82, 0.09f);
-
-        // spec4  y=967, h=93  (pose de retorno)
-        a.adicionarQuadro( 22, 967,  49, 93, 0.09f);
-        a.adicionarQuadro( 71, 967,  57, 93, 0.09f);
-        a.adicionarQuadro(128, 967,  56, 93, 0.09f);
-        a.adicionarQuadro(184, 967,  53, 93, 0.09f);
-        a.adicionarQuadro(237, 967,  57, 93, 0.09f);
-        a.adicionarQuadro(294, 967,  54, 93, 0.09f);
-        a.adicionarQuadro(348, 967,  48, 93, 0.09f);
-        a.adicionarQuadro(396, 967,  46, 93, 0.09f);
-        a.adicionarQuadro(442, 967,  93, 93, 0.12f);  // pose final longa
+        a.adicionarQuadro(291, 309,  32, 96, 0.3f);
+        a.adicionarQuadro(457, 314,  64, 92, 0.3f);
+        a.adicionarQuadro(532, 301,  200, 108, 0.3f);
+        
     }
 
     // ── TOMANDO_HIT (Get hit) ── Linha 5, 1 quadro ───────────

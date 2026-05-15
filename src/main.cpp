@@ -1,52 +1,24 @@
-// ============================================================
-//  main.cpp  —  Jogo principal com SFML
-//
-//  MAPEAMENTO DE TECLAS:
-//  ┌────────────┬─────────────────────────────────────────┐
-//  │ Tecla      │ Ação                                    │
-//  ├────────────┼─────────────────────────────────────────┤
-//  │ D          │ Andar (→ ANDANDO)                       │
-//  │ S          │ Parar (→ PARADO)                        │
-//  │ W          │ Pular vertical (→ PULANDO)              │
-//  │ E          │ Pular para frente (→ PULO_FRENTE)       │
-//  │ J          │ Soco (→ SOCO)                           │
-//  │ K          │ Soco novamente / Combo (→ COMBO)        │
-//  │ U          │ Chute no ar (→ CHUTE_AEREO)             │
-//  │ I          │ Soco descida no ar (→ SOCO_DESCIDA)     │
-//  │ Space      │ Especial / Super poder (→ ESPECIAL)     │
-//  │ G          │ Segurar inimigo (→ SEGURAR)             │
-//  │ T          │ Tapa enquanto segura (→ TAPA_SEGURADO)  │
-//  │ R          │ Arremessar (→ ARREMESSO)                │
-//  │ H          │ Tomar hit (demo)                        │
-//  │ F          │ Tomar hit forte (demo)                  │
-//  │ Z          │ Tomar hit fatal / Derrota (demo)        │
-//  │ V          │ Vencer (demo)                           │
-//  │ Backspace  │ Resetar autômato                        │
-//  └────────────┴─────────────────────────────────────────┘
-//
-// ============================================================
-
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
 #include "automato.h"
 #include "GerenciadorSprites.h"
-#include "GerenciadorAudio.h"       // <-- novo
+#include "GerenciadorAudio.h"
 
-// ── Configurações da janela ──────────────────────────────────
+//Configurações da janela
 static constexpr unsigned LARGURA_JANELA = 800;
 static constexpr unsigned ALTURA_JANELA  = 400;
 static constexpr unsigned ESCALA_SPRITE  = 5;    // zoom do personagem
 static constexpr float    DURACAO_PULO   = 1.0f; // s no ar antes de aterrissar
 
-// ── Caminhos de assets (ajuste conforme sua pasta) ───────────
+//Caminhos de assets
 static const std::string SPRITESHEET_PATH = "assets/sprites/SpriteSheet.png";
 static const std::string BACKGROUND_PATH  = "assets/backgrounds/Background.jpeg";
 static const std::string MUSICA_PATH      = "assets/audio/musica.ogg";
 
 int main() {
 
-    // ── Janela ───────────────────────────────────────────────
+    //Janela
     sf::RenderWindow janela(
         sf::VideoMode(LARGURA_JANELA, ALTURA_JANELA),
         "Sailor Moon – Automato Finito (SFML)",
@@ -54,10 +26,10 @@ int main() {
     );
     janela.setFramerateLimit(60);
 
-    // ── Autômato ─────────────────────────────────────────────
+    //Autômato
     Automato automato;
 
-    // ── Spritesheet do personagem ────────────────────────────
+    //Spritesheet do personagem
     GerenciadorSprites gerSprites;
     if (!gerSprites.carregar(SPRITESHEET_PATH)) {
         std::cerr << "Nao foi possivel abrir " << SPRITESHEET_PATH << "\n"
@@ -69,16 +41,13 @@ int main() {
     sprite.setTexture(gerSprites.getTextura());
     sprite.setScale(ESCALA_SPRITE, ESCALA_SPRITE);
 
-    // Posição central-inferior da janela
+    //Posição central-inferior da janela
     sprite.setPosition(
         LARGURA_JANELA / 2.f - 30.f * ESCALA_SPRITE,
         ALTURA_JANELA  - 40.f * ESCALA_SPRITE - 10.f
     );
 
-    // ── Background ───────────────────────────────────────────
-    //  Tentamos carregar uma imagem de fundo.
-    //  Se o arquivo não existir, usamos o retângulo sólido como fallback,
-    //  sem interromper a execução.
+    //Background
     sf::Texture texturaFundo;
     sf::Sprite  spriteFundo;
     bool        fundoComImagem = false;
@@ -86,7 +55,6 @@ int main() {
     if (texturaFundo.loadFromFile(BACKGROUND_PATH)) {
         texturaFundo.setSmooth(true);
 
-        // Escala para cobrir toda a janela, independente do tamanho original
         sf::Vector2u szTex = texturaFundo.getSize();
         float escX = static_cast<float>(LARGURA_JANELA) / szTex.x;
         float escY = static_cast<float>(ALTURA_JANELA)  / szTex.y;
@@ -101,20 +69,17 @@ int main() {
                   << "); usando cor solida de fallback.\n";
     }
 
-    // Fallback: retângulo azul noturno (idêntico ao original)
     sf::RectangleShape fundoFallback(sf::Vector2f(LARGURA_JANELA, ALTURA_JANELA));
     fundoFallback.setFillColor(sf::Color(20, 20, 60));
 
-    // ── Música de fundo ──────────────────────────────────────
-    //  GerenciadorAudio cuida do streaming e do loop automaticamente.
-    //  A falha no carregamento é não-fatal: o jogo roda sem som.
+    //Música de fundo
     GerenciadorAudio gerAudio;
     if (gerAudio.carregar(MUSICA_PATH)) {
         gerAudio.setVolume(55.f);   // 0–100; ajuste ao gosto
         gerAudio.tocar();
     }
 
-    // ── HUD (texto de estado) ────────────────────────────────
+    //HUD
     sf::Font fonte;
     bool fonteOk = fonte.loadFromFile("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf");
     if (!fonteOk)
@@ -135,14 +100,14 @@ int main() {
         textoControles.setFillColor(sf::Color(200, 200, 200));
         textoControles.setPosition(10.f, ALTURA_JANELA - 60.f);
         textoControles.setString(
-            "D=andar  S=parar  W=pular  E=pular-frente\n"
-            "J=soco  K=combo  U=chute-ar  I=soco-ar\n"
-            "Space=ESPECIAL  G=segurar  T=tapa  R=arremesso\n"
-            "H=hit  F=hit-forte  Z=fatal  V=vencer  BkSp=reset"
+            "D=andar  S=parar  W=pular  D+E=cambalhota\n"
+            "J=soco  J+K=combo  W+U=chute-ar  W+I=soco-ar\n"
+            "J+K+Spc=ESPECIAL  G=segurar  G+T=tapa  G+R=arremesso\n"
+            "Z=fatal  V=vencer  BkSp=reset"
         );
     }
 
-    // ── Timer de pulo (auto-aterrissar) ──────────────────────
+    //Timer de pulo
     float timerPulo  = 0.f;
     bool  estaNoPulo = false;
 
@@ -160,11 +125,11 @@ int main() {
         }
     };
 
-    // ── Loop principal ───────────────────────────────────────
+    //Loop principal
     while (janela.isOpen()) {
 
         float dt = relogio.restart().asSeconds();
-        if (dt > 0.1f) dt = 0.1f;   // limita dt em caso de perda de foco
+        if (dt > 0.1f) dt = 0.1f;
 
         // Eventos
         sf::Event ev;
@@ -249,15 +214,15 @@ int main() {
         if (fonteOk)
             textoEstado.setString("Estado: " + automato.getNomeEstado());
 
-        // ── Render (ordem: fundo → personagem → HUD) ─────────
+        //Render
         janela.clear();
 
         if (fundoComImagem)
-            janela.draw(spriteFundo);       // imagem de fundo
+            janela.draw(spriteFundo);
         else
-            janela.draw(fundoFallback);     // cor sólida de fallback
+            janela.draw(fundoFallback);
 
-        janela.draw(sprite);                // personagem
+        janela.draw(sprite);
 
         if (fonteOk) {
             janela.draw(textoEstado);
